@@ -1,6 +1,10 @@
 import PouchDB from 'pouchdb'
 // import store from '@/store/store'
 // import PouchdbSync from '@/store/modules/pouchdbSync.js'
+// var PouchDB = require('pouchdb');
+// PouchDB.plugin(require('pouchdb-find'));
+import findPlugin from "pouchdb-find";
+PouchDB.plugin(findPlugin);
 
 const actions = {
     get(dbName, id) {
@@ -33,17 +37,41 @@ const actions = {
         console.log('1 ', conditions)
         if (conditions.lenght === 3) {
             return this.get(dbName)
-            .then(docs => {
-                var filtered = docs.filter(f => f.Color.toLowerCase() === 'brown')
-                console.info(filtered)
-                return filtered
-            })
-            .catch(err => {
-                console.log(' ERROR: ', err)
-            })
+                .then(docs => {
+                    var filtered = docs.filter(f => f.Color.toLowerCase() === 'brown')
+                    console.info(filtered)
+                    return filtered
+                })
+                .catch(err => {
+                    console.log(' ERROR: ', err)
+                })
         }
-        
+
         // console.log(condition)
+    },
+    where(/* collection, data, field */) {
+        // var res =  data.filter(f => f.Color === 'Brown')
+        // return res
+
+        // Multi-field queries and sorting are also supporte
+        // var s = 'Color'
+        var db = new PouchDB('kittens')
+        // var f = field
+
+        return db.createIndex({
+            index: {
+                fields: ['Color']
+            }
+        }).then(function () {
+            return db.find({
+                selector: {
+                    Color: { $eq: 'Brown' }
+                },
+                // sort: [{
+                //     Color: 'desc'
+                // }]
+            });
+        });
     },
 
     post(dbName, doc) {
